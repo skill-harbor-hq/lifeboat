@@ -62,7 +62,8 @@ Set up the scheduled backup with `scripts/backup.py`:
 - Copies the memory, manual, journals, and any other folders the user
   lists to a local backup directory.
 - Pushes the backup to a **private** repository the user owns.
-- Keeps a rotation (default: 4 most recent snapshots).
+- Keeps a local rotation (default: 4 most recent snapshots); the private
+  repo holds the latest snapshot.
 - Retries transient failures automatically (with backoff) and **reports**
   final failures instead of failing silently. A backup that fails quietly
   is worse than no backup.
