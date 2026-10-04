@@ -14,8 +14,9 @@ that makes sure nothing slips through the cracks.
   habit, the backup routine, the coverage guard.
 - **`templates/`** — blank templates for the memory file, the operating
   manual, and the dated journals.
-- **`scripts/backup.py`** — scheduled backup (local copy + your own private
-  repo, rotation included). Retries transient failures automatically and
+- **`scripts/backup.py`** — scheduled backup (local copy with rotation —
+  4 most recent snapshots — plus your own private repo holding the latest
+  snapshot). Retries transient failures automatically and
   reports final failures instead of failing silently. Secrets are never
   backed up.
 - **`scripts/coverage-check.py`** — the anti-gap guard. Compares your real
