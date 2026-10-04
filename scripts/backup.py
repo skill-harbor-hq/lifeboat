@@ -2,8 +2,9 @@
 """Lifeboat backup script — generic version.
 
 Copies the folders listed in FOLDERS to a local backup directory, then
-pushes the backup to a private git repository. Keeps a rotation of the
-most recent snapshots.
+pushes the backup to a private git repository. Keeps a local rotation of
+the most recent snapshots; the private repo always holds the latest
+snapshot.
 
 Usage:
     python3 scripts/backup.py            # full backup (local + repo)
@@ -41,7 +42,8 @@ LOCAL_BACKUP_ROOT = os.path.expanduser("~/lifeboat-backups")
 GIT_REPO = ""          # e.g. "git@github.com:you/lifeboat-backups.git"
 GIT_BRANCH = "main"
 
-# Rotation: keep this many most recent snapshots (local and remote).
+# Rotation (local snapshots): keep this many most recent snapshots.
+# The private repo always holds the latest snapshot (force-pushed mirror).
 KEEP_SNAPSHOTS = 4
 
 # Retry policy for transient failures (network, API).
@@ -53,6 +55,10 @@ SECRET_PATTERNS = (
     ".env", ".pem", ".key", "id_rsa", "id_ed25519",
     "credentials.json", "secrets.json", ".netrc",
 )
+
+# Folder names that are always secrets locations — the script refuses to
+# back these up at all (see check_folders).
+SECRET_DIR_NAMES = (".ssh", ".gnupg", ".aws")
 
 DRY_RUN = "--dry-run" in sys.argv
 # ----------------------------------------------------------------------
@@ -75,7 +81,8 @@ def is_secret_path(path):
 
 def check_folders(folders):
     for f in folders:
-        if is_secret_path(f):
+        name = os.path.basename(os.path.normpath(f)).lower()
+        if is_secret_path(f) or name in SECRET_DIR_NAMES:
             fail(f"refusing to back up a secrets location: {f}")
         if not os.path.isdir(f):
             fail(f"folder does not exist: {f}")
